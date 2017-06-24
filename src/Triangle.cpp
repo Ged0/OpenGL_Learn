@@ -15,10 +15,17 @@
 #include <GL/glut.h> // Windows FreeGlut equivalent
 #endif
 
+#include <iostream>
+
 // using namespace glm;
 
 GLBatch triangleBatch;
 GLShaderManager shaderManager;
+
+// Load up a triangle
+GLfloat vVerts[] = {-0.5f, 0.0f, 0.0f,
+                    0.5f, 0.0f, 0.0f,
+                    0.0f, 0.5f, 0.0f};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Window has changed size, or has just been created. In either case, we need
@@ -38,14 +45,35 @@ void SetupRC()
 
     shaderManager.InitializeStockShaders();
 
-    // Load up a triangle
-    GLfloat vVerts[] = {-0.5f, 0.0f, 0.0f,
-                        0.5f, 0.0f, 0.0f,
-                        0.0f, 0.5f, 0.0f};
-
     triangleBatch.Begin(GL_TRIANGLES, 3);
     triangleBatch.CopyVertexData3f(vVerts);
     triangleBatch.End();
+}
+
+void Specialkeys(int key, int x, int y)
+{
+    GLfloat stepSize = 0.025f;
+
+    if (key == GLUT_KEY_UP)
+    {
+        std::cout << "changed" << std::endl;
+        // for (GLfloat &x : vVerts)
+        // {
+        //     x += stepSize;
+        //     std::cout << x << std::endl;
+        // }
+        for (int i = 0; i < sizeof(vVerts) / sizeof(vVerts[0]); i++)
+        {
+            vVerts[i] += stepSize;
+        }
+    }
+    else if (key == GLUT_KEY_F1)
+    {
+        std::cout << "test" << std::endl;
+    }
+
+    triangleBatch.CopyVertexData3f(vVerts);
+    glutPostRedisplay();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,11 +98,13 @@ int main(int argc, char *argv[])
     gltSetWorkingDirectory(argv[0]);
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
+    // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
     glutCreateWindow("Triangle");
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
+    glutSpecialFunc(Specialkeys);
 
     GLenum err = glewInit();
     if (GLEW_OK != err)
